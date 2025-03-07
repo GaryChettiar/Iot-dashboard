@@ -70,7 +70,7 @@ export default function IotDashboard() {
           {users.map((src, index) => (
             <img key={index} src={src} alt={`User ${index}`} className="avatar" />
           ))}
-          <span className="user-names">Gurmey, Nishant, Charlie +12 others</span>
+          <span className="user-names">Gunmay, Nishant, Charlie +12 others</span>
         </div>
 
         <div className="tabs">
