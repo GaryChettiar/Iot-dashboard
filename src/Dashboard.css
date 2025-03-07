@@ -114,13 +114,15 @@
     align-items: center;
     margin-bottom: 20px;
     border-bottom: #FFFFFF33 1px solid;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 10px;
+    flex-wrap: wrap; /* Make it flexible on smaller screens */
+    gap: 10px; /* Add spacing between elements */
   }
   
   .dashboard-title {
     font-size: 24px;
     font-weight: bold;
+    color: #D0D0D0;
   }
   
   .connect-button {
@@ -130,6 +132,40 @@
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  
+  .connect-button:hover {
+    background-color: #28a745; /* Light Green Hover */
+  }
+  
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column; /* Stack items vertically */
+      align-items: flex-start; /* Align items left */
+      text-align: left;
+    }
+  
+    .dashboard-title {
+      font-size: 20px;
+    }
+  
+    .connect-button {
+      padding: 8px 12px;
+      align-self: flex-end; /* Button stays on right */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .dashboard-title {
+      font-size: 18px; /* Smaller Font Size */
+    }
+  
+    .connect-button {
+      width: 100%; /* Full Width Button */
+      text-align: center;
+      padding: 10px;
+    }
   }
   
   .metrics-grid {
