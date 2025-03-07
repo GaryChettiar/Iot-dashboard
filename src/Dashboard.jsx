@@ -56,7 +56,10 @@ export default function IotDashboard() {
       <div className="dashboard-container">
          <div className="header">
         <h1 className="dashboard-title">IoT Monitoring Dashboard</h1>
-        <button className="connect-button">Connect</button>
+        <button className="connect-button">Flood prediction
+        </button>
+        <button className="connect-button">Tea leaves </button>
+        <button className="connect-button">Vegetable disease detection</button>
       </div>
         <div className="dashboard-header">
           <h1 className="dashboard-title">IoT Monitoring Dashboard</h1>

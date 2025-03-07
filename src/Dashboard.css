@@ -92,6 +92,7 @@
     align-items: center;
     margin-bottom: 20px;
     flex-wrap: wrap;
+    gap: 20px;
   }
   
   .dashboard-title {
@@ -105,6 +106,30 @@
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: #FFFFFF33 1px solid;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .dashboard-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .connect-button {
+    background-color: green;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
   }
   
   .metrics-grid {
