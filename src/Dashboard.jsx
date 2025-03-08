@@ -101,9 +101,15 @@ export default function IotDashboard() {
 
       {/* Main Dashboard */}
       <div className="dashboard-container">
-        <div className="header">
-          <h1 className="dashboard-title">IoT Monitoring Dashboard</h1>
-        </div>
+      <div className="header">
+        <h1 className="dashboard-title">IoT Monitoring Dashboard</h1>
+        <button className="connect-button">Use drone
+        </button>
+        <button className="connect-button">Flood prediction
+        </button>
+        <button className="connect-button">Tea leaves </button>
+        <button className="connect-button">Vegetable disease detection</button>
+      </div>
 
         <h2 className="metrics-title">Key Metrics</h2>
         <div className="metrics-grid">
