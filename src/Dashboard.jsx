@@ -1,85 +1,108 @@
-import React from 'react';
-import './Dashboard.css';
+import React, { useState, useEffect } from "react";
+import "./Dashboard.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-const metrics = [
-  { name: 'Temperature', value: '22°C', change: '+3%' },
-  { name: 'Humidity', value: '45%', change: '-2%' },
-  { name: 'Soil Moisture', value: '30%', change: '+5%' },
-  { name: 'pH Level', value: '6.5', change: '0%' },
-];
+import { database, ref, onValue, push } from "./firebase"; // Firebase imports
 
-const data = [
-    { time: "00:00", value: 22 },
-    { time: "01:00", value: 23 },
-    { time: "02:00", value: 21 },
-    { time: "03:00", value: 22.5 },
+export default function IotDashboard() {
+  // State for the latest sensor data
+  const [sensorData, setSensorData] = useState({
+    Humidity: 0,
+    SoilMoisture: 0,
+    Temperature: 0,
+    pH: 0,
+    Timestamp: "",
+  });
+
+  // State for chart data (stores all previous readings)
+  const [chartData, setChartData] = useState({
+    Temperature: [],
+    Humidity: [],
+    SoilMoisture: [],
+    pH: [],
+  });
+
+  // State for storing ALL sensor readings history
+  const [liveDataList, setLiveDataList] = useState([]);
+
+  useEffect(() => {
+    // Reference to "PlantSystem" node in Firebase
+    const dbRef = ref(database, "PlantSystem");
+
+    // Listen for real-time updates
+    onValue(dbRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+
+        // Ensure the data has a timestamp
+        const timestamp = data.Timestamp || new Date().toISOString();
+
+        setSensorData(data);
+
+        // Append new data to charts
+        setChartData((prevChartData) => ({
+          Temperature: [...prevChartData.Temperature, { time: timestamp, value: data.Temperature }],
+          Humidity: [...prevChartData.Humidity, { time: timestamp, value: data.Humidity }],
+          SoilMoisture: [...prevChartData.SoilMoisture, { time: timestamp, value: data.SoilMoisture }],
+          pH: [...prevChartData.pH, { time: timestamp, value: data.pH }],
+        }));
+
+        // Append new data to the sidebar history
+        setLiveDataList((prevList) => [
+          { time: timestamp, ...data }, // Add new reading at the top
+          ...prevList,
+        ]);
+      }
+    });
+  }, []);
+
+  // Metrics Data (Updated from Firebase)
+  const metrics = [
+    { name: "Temperature", value: `${sensorData.Temperature}°C` },
+    { name: "Humidity", value: `${sensorData.Humidity}%` },
+    { name: "Soil Moisture", value: `${sensorData.SoilMoisture}` },
+    { name: "pH Level", value: `${sensorData.pH}` },
   ];
 
-const liveData = [
-  { time: '12:01:15', sensor: 'Temperature', reading: '22°C', status: 'Stable', connection: 'Connected' },
-  { time: '12:02:30', sensor: 'Humidity', reading: '45%', status: 'High', connection: 'Connected' },
-  { time: '12:03:40', sensor: 'Soil Moisture', reading: '30%', status: 'Low', connection: 'Connected' },
-];
-
-const users = ['src/assets/p1.png', 'src/assets/p1.png', 'src/assets/p1.png'];
-const Chart = ({ title }) => (
+  // Chart Component (Reusable for all parameters)
+  const Chart = ({ title, dataKey, color }) => (
     <div className="chart-card">
       <h3 className="chart-title">{title}</h3>
       <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={data}>
+        <LineChart data={chartData[dataKey]}>
           <XAxis dataKey="time" stroke="#ccc" />
           <YAxis stroke="#ccc" />
           <Tooltip contentStyle={{ backgroundColor: "#333", color: "#fff" }} />
-          <Line type="monotone" dataKey="value" stroke="#4ade80" strokeWidth={2} />
+          <Line type="monotone" dataKey="value" stroke={color} strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     </div>
   );
-export default function IotDashboard() {
+
   return (
     <div className="dashboard-wrapper">
       {/* IoT Live Sidebar */}
       <div className="iot-sidebar">
-        <h3 className="iot-title">IOT LIVE Data ⬇️</h3>
-        {liveData.map((data, index) => (
-          <div key={index} className="iot-card">
-            <p><strong>Timestamp:</strong> {data.time}</p>
-            <p><strong>Sensor:</strong> {data.sensor}</p>
-            <p><strong>Reading:</strong> {data.reading}</p>
-            <p><strong>Status:</strong> {data.status}</p>
-            <p><strong>Connection:</strong> {data.connection}</p>
-          </div>
-        ))}
+        <h3 className="iot-title">IoT Live Data ⬇️</h3>
+        <div className="iot-card">
+          <ul className="live-data-list">
+            {liveDataList.map((entry, index) => (
+              <li key={index} className="live-data-item">
+                <p><strong>{entry.time}</strong></p>
+                <p>🌡️ Temp: {entry.Temperature}°C</p>
+                <p>💧 Humidity: {entry.Humidity}%</p>
+                <p>🌱 Soil Moisture: {entry.SoilMoisture}</p>
+                <p>⚗️ pH: {entry.pH}</p>
+                <hr />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Main Dashboard */}
       <div className="dashboard-container">
-         <div className="header">
-        <h1 className="dashboard-title">IoT Monitoring Dashboard</h1>
-        <button className="connect-button">Flood prediction
-        </button>
-        <button className="connect-button">Tea leaves </button>
-        <button className="connect-button">Vegetable disease detection</button>
-      </div>
-        <div className="dashboard-header">
+        <div className="header">
           <h1 className="dashboard-title">IoT Monitoring Dashboard</h1>
-          <div className="dashboard-status">
-            <span className="badge operational">● Operational</span>
-            <button className="share-button">Share</button>
-          </div>
-        </div>
-
-        <div className="user-list">
-          {users.map((src, index) => (
-            <img key={index} src={src} alt={`User ${index}`} className="avatar" />
-          ))}
-          <span className="user-names">Gunmay, Nishant, Charlie +12 others</span>
-        </div>
-
-        <div className="tabs">
-          <span className="tab active">Dashboard</span>
-          <span className="tab">Logs</span>
-          <span className="tab">Settings</span>
         </div>
 
         <h2 className="metrics-title">Key Metrics</h2>
@@ -88,15 +111,17 @@ export default function IotDashboard() {
             <div key={index} className="metric-card">
               <h3 className="metric-name">{metric.name}</h3>
               <p className="metric-value">{metric.value}</p>
-              <p className={`metric-change ${metric.change.includes('-') ? 'negative' : 'positive'}`}>{metric.change}</p>
             </div>
           ))}
         </div>
+
+        <h2 className="metrics-title">Live Sensor Data</h2>
         <div className="chart-grid">
-        <Chart title="Temperature Over Time" />
-        <Chart title="Soil Moisture Over Time" />
-        <Chart title="Humidity Over Time" />
-      </div>
+          <Chart title="Temperature Over Time" dataKey="Temperature" color="#ff4d4d" />
+          <Chart title="Humidity Over Time" dataKey="Humidity" color="#4da6ff" />
+          <Chart title="Soil Moisture Over Time" dataKey="SoilMoisture" color="#4ade80" />
+          <Chart title="pH Level Over Time" dataKey="pH" color="#ffcc00" />
+        </div>
       </div>
     </div>
   );
